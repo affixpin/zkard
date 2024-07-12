@@ -12,10 +12,10 @@ export function CreditCard() {
 					Visa
 				</div>
 				<div className="absolute bottom-4 left-4 text-white text-2xl font-bold">
-					************1234
+					1111 2222 3333 4444
 				</div>
 				<div className="absolute bottom-4 right-4 text-white text-2xl font-bold">
-					06/25
+					04/20
 				</div>
 			</div>
 		</div>

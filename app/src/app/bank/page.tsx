@@ -1,13 +1,25 @@
-import Link from "next/link";
-import { ShoppingCart, DollarSign, Menu, Package2, Users } from "lucide-react";
+"use client";
 
+import Link from "next/link";
+import { ShoppingCart, Menu, Package2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { transactions } from "./transactions.state";
-import { CreditCard } from "./card";
+
+import { CreditCard } from "./credit-card";
+import type { Transaction } from "../api/transactions/entity";
 
 export default function Dashboard() {
+	const { data } = useQuery({
+		queryKey: ["transactions"],
+		queryFn: async () => {
+			const response = await fetch("/api/transactions?userId=root");
+			const json = await response.json();
+			return json as Transaction[];
+		},
+	});
+
 	return (
 		<div className="flex min-h-screen w-full flex-col">
 			<header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -137,7 +149,7 @@ export default function Dashboard() {
 							<CardTitle>Transactions</CardTitle>
 						</CardHeader>
 						<CardContent className="grid gap-8">
-							{transactions.map((tx) => (
+							{data?.map((tx) => (
 								<div className="flex items-center gap-4">
 									<ShoppingCart className="h-6 w-6" />
 									<div className="grid gap-1">
