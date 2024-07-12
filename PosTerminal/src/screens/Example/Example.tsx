@@ -1,34 +1,16 @@
+import { useState } from "react";
 import { View, Text, Alert } from "react-native";
 import nfcManager, { NfcTech } from "react-native-nfc-manager";
-import { useTranslation } from "react-i18next";
 
 import { SafeScreen } from "@/components/template";
 import { useTheme } from "@/theme";
 
 import Keypad from "@/components/molecules/Keypad/Keypad";
-import { useState } from "react";
 
 nfcManager.start();
 
 function Example() {
-  const { t } = useTranslation(["example", "welcome"]);
-  const { colors, layout, gutters, fonts, components } = useTheme();
-
-  const onNfcPress = async () => {
-    try {
-      // register for the NFC tag with NDEF in it
-      await nfcManager.requestTechnology(NfcTech.Ndef);
-      // the resolved tag object will contain `ndefMessage` property
-      const tag = await nfcManager.getTag();
-      console.warn("Tag found", tag);
-      Alert.alert("Tag found", JSON.stringify(tag));
-    } catch (ex) {
-      console.warn("Oops!", ex);
-    } finally {
-      // stop the nfc scanning
-      nfcManager.cancelTechnologyRequest();
-    }
-  };
+  const { gutters } = useTheme();
 
   const [currentValue, setCurrentValue] = useState("");
 
@@ -52,7 +34,44 @@ function Example() {
     setCurrentValue((prevValue) => prevValue + value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!currentValue) {
+      Alert.alert("Please enter an amount");
+      return;
+    }
+
+    try {
+      // register for the NFC tag with NDEF in it
+      await nfcManager.requestTechnology(NfcTech.Ndef);
+      // the resolved tag object will contain `ndefMessage` property
+      const tag = await nfcManager.getTag();
+
+      Alert.alert("Tag found", JSON.stringify(tag));
+    } catch (ex: unknown) {
+      if (ex instanceof Error) return Alert.alert("Error", ex.message);
+    } finally {
+      // stop the nfc scanning
+      nfcManager.cancelTechnologyRequest();
+    }
+
+    const call = await fetch(
+      "https://d777ce2e7ed6.ngrok.app/api/signature-requests",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: Number(currentValue),
+          userId: 1,
+        }),
+      }
+    );
+
+    const response = await call.json();
+
+    Alert.alert("Success", JSON.stringify(response));
+
     setCurrentValue(""); // Clear the current value after submission
   };
 
@@ -108,7 +127,7 @@ function Example() {
 
         <Keypad
           onPress={(value) => handlePress(value)}
-          onSubmit={() => {}}
+          onSubmit={() => handleSubmit()}
           onClear={() => handleClear()}
         />
       </View>
