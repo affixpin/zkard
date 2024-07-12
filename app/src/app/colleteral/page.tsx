@@ -1,20 +1,25 @@
+"use client";
+
 import Link from "next/link";
-import {
-	Activity,
-	Key,
-	CreditCard,
-	DollarSign,
-	Menu,
-	Package2,
-	Users,
-} from "lucide-react";
+import { Key, Menu, Package2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { signatureRequests } from "./signature-requests.state";
+import { useQuery } from "@tanstack/react-query";
+
+import type { SignatureRequest } from "../api/signature-requests/entity";
 
 export default function Dashboard() {
+	const { data } = useQuery({
+		queryKey: ["signature-requests"],
+		queryFn: async () => {
+			const response = await fetch("/api/signature-requests?userId=root");
+			const json = await response.json();
+			return json as SignatureRequest[];
+		},
+	});
+
 	return (
 		<div className="flex min-h-screen w-full flex-col">
 			<header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -96,7 +101,7 @@ export default function Dashboard() {
 							<CardTitle>Signature requests</CardTitle>
 						</CardHeader>
 						<CardContent className="grid gap-8">
-							{signatureRequests.map((tx) => (
+							{data?.map((tx) => (
 								<div className="flex items-center gap-4">
 									<Key className="h-6 w-6" />
 									<div className="grid gap-1">
