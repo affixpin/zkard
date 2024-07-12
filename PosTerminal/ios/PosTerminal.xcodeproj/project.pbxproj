@@ -31,7 +31,7 @@
 		00E356EE1AD99517003FC87E /* PosTerminalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PosTerminalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* PosTerminalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PosTerminalTests.m; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* PosTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PosTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* NFCTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NFCTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = PosTerminal/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = PosTerminal/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PosTerminal/Images.xcassets; sourceTree = "<group>"; };
@@ -40,6 +40,7 @@
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-PosTerminal-PosTerminalTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PosTerminal-PosTerminalTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-PosTerminal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PosTerminal.debug.xcconfig"; path = "Target Support Files/Pods-PosTerminal/Pods-PosTerminal.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-PosTerminal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PosTerminal.release.xcconfig"; path = "Target Support Files/Pods-PosTerminal/Pods-PosTerminal.release.xcconfig"; sourceTree = "<group>"; };
+		5A9A16142C41BF85008513C1 /* PosTerminal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = PosTerminal.entitlements; path = PosTerminal/PosTerminal.entitlements; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-PosTerminal-PosTerminalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PosTerminal-PosTerminalTests.debug.xcconfig"; path = "Target Support Files/Pods-PosTerminal-PosTerminalTests/Pods-PosTerminal-PosTerminalTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-PosTerminal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PosTerminal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = PosTerminal/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -88,6 +89,7 @@
 		13B07FAE1A68108700A75B9A /* PosTerminal */ = {
 			isa = PBXGroup;
 			children = (
+				5A9A16142C41BF85008513C1 /* PosTerminal.entitlements */,
 				F571B3872BD7A3F80014213C /* PrivacyInfo.xcprivacy */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -134,7 +136,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* PosTerminal.app */,
+				13B07F961A680F5B00A75B9A /* NFCTerminal.app */,
 				00E356EE1AD99517003FC87E /* PosTerminalTests.xctest */,
 			);
 			name = Products;
@@ -194,7 +196,7 @@
 			);
 			name = PosTerminal;
 			productName = PosTerminal;
-			productReference = 13B07F961A680F5B00A75B9A /* PosTerminal.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* NFCTerminal.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -453,7 +455,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = fish.mad.nfcterminal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PosTerminal.app/PosTerminal";
 			};
@@ -477,7 +479,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = fish.mad.nfcterminal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PosTerminal.app/PosTerminal";
 			};
@@ -489,8 +491,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = PosTerminal/PosTerminal.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HH673SN3QR;
+				DEVELOPMENT_TEAM = D653UWS37K;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PosTerminal/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -503,8 +506,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = PosTerminal;
+				PRODUCT_BUNDLE_IDENTIFIER = fish.mad.nfcterminal;
+				PRODUCT_NAME = NFCTerminal;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -517,8 +520,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = PosTerminal/PosTerminal.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HH673SN3QR;
+				DEVELOPMENT_TEAM = D653UWS37K;
 				INFOPLIST_FILE = PosTerminal/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -530,8 +534,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = PosTerminal;
+				PRODUCT_BUNDLE_IDENTIFIER = fish.mad.nfcterminal;
+				PRODUCT_NAME = NFCTerminal;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

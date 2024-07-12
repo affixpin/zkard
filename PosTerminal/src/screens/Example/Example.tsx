@@ -1,148 +1,117 @@
-import { useEffect, useState } from "react";
-import {
-  View,
-  ActivityIndicator,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import i18next from "i18next";
+import { View, Text, Alert } from "react-native";
+import nfcManager, { NfcTech } from "react-native-nfc-manager";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
 
-import { ImageVariant } from "@/components/atoms";
-import { Brand } from "@/components/molecules";
 import { SafeScreen } from "@/components/template";
 import { useTheme } from "@/theme";
-import { fetchOne } from "@/services/users";
 
-import { isImageSourcePropType } from "@/types/guards/image";
+import Keypad from "@/components/molecules/Keypad/Keypad";
+import { useState } from "react";
 
-import SendImage from "@/theme/assets/images/send.png";
-import ColorsWatchImage from "@/theme/assets/images/colorswatch.png";
-import TranslateImage from "@/theme/assets/images/translate.png";
+nfcManager.start();
 
 function Example() {
   const { t } = useTranslation(["example", "welcome"]);
+  const { colors, layout, gutters, fonts, components } = useTheme();
 
-  const {
-    colors,
-    variant,
-    changeTheme,
-    layout,
-    gutters,
-    fonts,
-    components,
-    backgrounds,
-  } = useTheme();
-
-  const [currentId, setCurrentId] = useState(-1);
-
-  const { isSuccess, data, isFetching } = useQuery({
-    queryKey: ["example", currentId],
-    queryFn: () => {
-      return fetchOne(currentId);
-    },
-    enabled: currentId >= 0,
-  });
-
-  useEffect(() => {
-    if (isSuccess) {
-      Alert.alert(t("example:welcome", data.name));
+  const onNfcPress = async () => {
+    try {
+      // register for the NFC tag with NDEF in it
+      await nfcManager.requestTechnology(NfcTech.Ndef);
+      // the resolved tag object will contain `ndefMessage` property
+      const tag = await nfcManager.getTag();
+      console.warn("Tag found", tag);
+      Alert.alert("Tag found", JSON.stringify(tag));
+    } catch (ex) {
+      console.warn("Oops!", ex);
+    } finally {
+      // stop the nfc scanning
+      nfcManager.cancelTechnologyRequest();
     }
-  }, [isSuccess, data]);
-
-  const onChangeTheme = () => {
-    changeTheme(variant === "default" ? "dark" : "default");
   };
 
-  const onChangeLanguage = (lang: "fr" | "en") => {
-    void i18next.changeLanguage(lang);
+  const [currentValue, setCurrentValue] = useState("");
+
+  const handlePress = (value: string) => {
+    // Ensure only two digits after decimal point
+    if (currentValue.length === 0 && value === ".") {
+      return setCurrentValue("0.");
+    }
+
+    if (currentValue.includes(".")) {
+      if (value === ".") {
+        return;
+      }
+
+      const decimalIndex = currentValue.indexOf(".");
+      if (currentValue.length - decimalIndex > 2) {
+        return;
+      }
+    }
+
+    setCurrentValue((prevValue) => prevValue + value);
   };
 
-  if (
-    !isImageSourcePropType(SendImage) ||
-    !isImageSourcePropType(ColorsWatchImage) ||
-    !isImageSourcePropType(TranslateImage)
-  ) {
-    throw new Error("Image source is not valid");
-  }
+  const handleSubmit = () => {
+    setCurrentValue(""); // Clear the current value after submission
+  };
+
+  const handleClear = () => {
+    setCurrentValue((prevValue) => prevValue.slice(0, -1)); // Remove last character
+  };
 
   return (
     <SafeScreen>
-      <ScrollView>
-        <View style={[gutters.paddingHorizontal_32, gutters.marginTop_40]}>
-          <View style={[gutters.marginTop_40]}>
-            <Text style={[fonts.size_40, fonts.gray800, fonts.bold]}>
-              {t("welcome:title")}
-            </Text>
-            <Text
-              style={[
-                fonts.gray400,
-                fonts.bold,
-                fonts.size_24,
-                gutters.marginBottom_32,
-              ]}
-            >
-              {t("welcome:subtitle")}
-            </Text>
-            <Text
-              style={[fonts.size_16, fonts.gray200, gutters.marginBottom_40]}
-            >
-              {t("welcome:description")}
-            </Text>
-          </View>
-
-          <View
+      <View
+        style={[
+          gutters.paddingHorizontal_32,
+          {
+            height: "100%",
+            justifyContent: "space-between",
+          },
+        ]}
+      >
+        <View style={{}}>
+          <Text
             style={[
-              layout.row,
-              layout.justifyBetween,
-              layout.fullWidth,
-              gutters.marginTop_16,
+              {
+                textAlign: "right",
+                fontSize: 48,
+              },
             ]}
           >
-            <TouchableOpacity
-              testID="fetch-user-button"
-              style={[components.buttonCircle, gutters.marginBottom_16]}
-              onPress={() => setCurrentId(Math.ceil(Math.random() * 10 + 1))}
+            Enter amount:
+          </Text>
+          {currentValue !== "" ? (
+            <Text
+              style={[
+                {
+                  textAlign: "right",
+                  fontSize: 96,
+                },
+              ]}
             >
-              {isFetching ? (
-                <ActivityIndicator />
-              ) : (
-                <ImageVariant
-                  source={SendImage}
-                  style={{ tintColor: colors.purple500 }}
-                />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="change-theme-button"
-              style={[components.buttonCircle, gutters.marginBottom_16]}
-              onPress={() => onChangeTheme()}
+              {currentValue}
+            </Text>
+          ) : (
+            <Text
+              style={{
+                textAlign: "right",
+                fontSize: 96,
+                color: "#aeaeae",
+              }}
             >
-              <ImageVariant
-                source={ColorsWatchImage}
-                style={{ tintColor: colors.purple500 }}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="change-language-button"
-              style={[components.buttonCircle, gutters.marginBottom_16]}
-              onPress={() =>
-                onChangeLanguage(i18next.language === "fr" ? "en" : "fr")
-              }
-            >
-              <ImageVariant
-                source={TranslateImage}
-                style={{ tintColor: colors.purple500 }}
-              />
-            </TouchableOpacity>
-          </View>
+              0,00
+            </Text>
+          )}
         </View>
-      </ScrollView>
+
+        <Keypad
+          onPress={(value) => handlePress(value)}
+          onSubmit={() => {}}
+          onClear={() => handleClear()}
+        />
+      </View>
     </SafeScreen>
   );
 }
