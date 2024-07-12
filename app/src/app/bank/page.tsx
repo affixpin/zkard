@@ -9,14 +9,24 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import { CreditCard } from "./credit-card";
 import type { Transaction } from "../api/transactions/entity";
+import type { User } from "../api/users/entity";
 
-export default function Dashboard() {
-	const { data } = useQuery({
+export default function Page() {
+	const { data: transactions } = useQuery({
 		queryKey: ["transactions"],
 		queryFn: async () => {
 			const response = await fetch("/api/transactions?userId=root");
 			const json = await response.json();
 			return json as Transaction[];
+		},
+	});
+
+	const { data: user } = useQuery({
+		queryKey: ["user"],
+		queryFn: async () => {
+			const response = await fetch("/api/users?id=root");
+			const json = await response.json();
+			return json as User;
 		},
 	});
 
@@ -97,7 +107,7 @@ export default function Dashboard() {
 			<main className="flex flex-1 flex-col gap-4 p-4">
 				<div className="grid gap-4 md:gap-4 lg:grid-cols-3">
 					<div>
-						<CreditCard />
+						<CreditCard number={user?.card.number ?? ""} expiry={user?.card.expiry ?? ""} />
 						<div className="flex gap-4 mt-4">
 							<Card className="w-[100%]">
 								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -106,7 +116,7 @@ export default function Dashboard() {
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className="text-2xl font-bold">$1000</div>
+									<div className="text-2xl font-bold">${user?.balance}</div>
 								</CardContent>
 							</Card>
 							<Card className="w-[100%]">
@@ -116,7 +126,9 @@ export default function Dashboard() {
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className="text-2xl font-bold">$1000</div>
+									<div className="text-2xl font-bold">
+										${user?.defiColleteral}
+									</div>
 								</CardContent>
 							</Card>
 						</div>
@@ -129,7 +141,7 @@ export default function Dashboard() {
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className="text-2xl font-bold">$1000</div>
+									<div className="text-2xl font-bold">${user?.creditLimit}</div>
 								</CardContent>
 							</Card>
 							<Card className="w-[100%]">
@@ -139,7 +151,7 @@ export default function Dashboard() {
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className="text-2xl font-bold">$1000</div>
+									<div className="text-2xl font-bold">${user?.creditSpent}</div>
 								</CardContent>
 							</Card>
 						</div>
@@ -149,8 +161,8 @@ export default function Dashboard() {
 							<CardTitle>Transactions</CardTitle>
 						</CardHeader>
 						<CardContent className="grid gap-8">
-							{data?.map((tx) => (
-								<div className="flex items-center gap-4">
+							{transactions?.map((tx) => (
+								<div key={tx.id} className="flex items-center gap-4">
 									<ShoppingCart className="h-6 w-6" />
 									<div className="grid gap-1">
 										<p className="text-sm font-medium leading-none">

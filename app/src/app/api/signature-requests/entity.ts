@@ -1,5 +1,4 @@
-export interface Transaction {
-	id: string;
+export interface SignatureRequest {
 	value: string;
 	date: string;
 	description: string;

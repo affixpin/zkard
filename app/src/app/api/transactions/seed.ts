@@ -1,6 +1,8 @@
+import { Transaction } from "./entity";
 
 export const transactionsSeed: Transaction[] = [
 	{
+		id: "1",
 		value: "100$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -8,6 +10,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "2",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -15,6 +18,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "3",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -22,6 +26,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "4",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -29,6 +34,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "5",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -36,6 +42,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "6",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
@@ -43,6 +50,7 @@ export const transactionsSeed: Transaction[] = [
 		userId: "root",
 	},
 	{
+		id: "7",
 		value: "200$",
 		date: "2021-10-01 22:00:00",
 		description: "Spend at zkard.shop",
