@@ -1,7 +1,8 @@
 # ZKard - Permissionless Payment Solution with ZK Technology
 
-<img width="100%" alt="zkard-logo-clean" src="https://github.com/user-attachments/assets/988b2b8c-0082-4b4b-811d-eba99211133e">
+![telegram-cloud-photo-size-2-5231199068095637399-y](https://github.com/user-attachments/assets/6419598e-b4cc-4964-aba3-fc3cbe4b28b1)
 
+---
 
 ZKard offers a trustless integration for banking institutions and card providers to connect with users' Smart accounts. This allows users to leverage their existing DeFi assets to collateralize loans on a credit card.
 
