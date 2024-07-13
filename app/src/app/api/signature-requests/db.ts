@@ -8,7 +8,7 @@ let db: Low<{ signatureRequests: SignatureRequest[] }> | null = null;
 
 export const signatureRequestsDb = async () => {
 	if (db) return db;
-	db = await JSONFilePreset("signature-requests.json", {
+	db = await JSONFilePreset(process.env.DB_PATH + "/signature-requests.json", {
 		signatureRequests: signatureRequestsSeed,
 	});
 	return db;
