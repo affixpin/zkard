@@ -20,6 +20,12 @@ contract Collaterals is IVerifier {
 
     address bank;
 
+    constructor(address limitReachedVerifierAddr_, address borrowVerifierAddr_, address withdrawVerifierAddr_) {
+        limitReachedVerifierAddr = limitReachedVerifierAddr_;
+        borrowVerifierAddr = borrowVerifierAddr_;
+        withdrawVerifierAddr = withdrawVerifierAddr_;
+    }
+
     function canLiquidate(address collateral, address user) external view returns (bool) {
         return block.timestamp < liquidationWindows[user];
     }

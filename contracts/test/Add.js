@@ -14,7 +14,7 @@ async function readContractState(args) {
     transport: http(),
   });
 
-  const artifact = JSON.parse(fs.readFileSync("./out/add.sol/Verifier.json"));
+  const artifact = JSON.parse(fs.readFileSync("./out/borrow.sol/Verifier.json"));
   const abi = artifact.abi;
 
   const data = await publicClient.readContract({
@@ -33,7 +33,7 @@ async function generateProof(prev_state_hash, prev_state, to_add) {
 
   console.info("generating proof...");
 
-  const source = fs.readFileSync("./zoks/add.zok", {
+  const source = fs.readFileSync("./zoks/borrow.zok", {
     encoding: "utf8",
     flag: "r",
   });
@@ -51,7 +51,7 @@ async function generateProof(prev_state_hash, prev_state, to_add) {
   );
   console.log("output", output);
 
-  const pk = fs.readFileSync(`./out/keypairs/add-keypair.pk`);
+  const pk = fs.readFileSync(`./out/keypairs/borrow-keypair.pk`);
 
 
   // generate proof
