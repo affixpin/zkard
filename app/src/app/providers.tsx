@@ -8,8 +8,22 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { wagmiConfig } from "./wagmi";
-import { WagmiProvider } from "wagmi";
+import {
+  WagmiProvider,
+  useAccount,
+  useClient,
+  usePublicClient,
+  useWalletClient,
+} from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { getSmartAccountClient } from "@/lib/permissionless";
+import { useEffect } from "react";
+import { useAtom } from "jotai";
+
+import { safeAtom } from "./state/safe";
+import { walletClientToSmartAccountSigner } from "permissionless";
+import { createWalletClient, custom } from "viem";
+import { sepolia } from "viem/chains";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -40,17 +54,33 @@ function getQueryClient() {
 }
 
 export default function Providers({ children }: any) {
-  // NOTE: Avoid useState when initializing the query client if you don't
-  //       have a suspense boundary between this and the code that may
-  //       suspend because React will throw away the client on the initial
-  //       render if it suspends and there is no boundary
   const queryClient = getQueryClient();
 
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
+        <SafeProvider />
         <RainbowKitProvider>{children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
+}
+
+export function SafeProvider() {
+  const [_safe, setSafe] = useAtom(safeAtom);
+  const wc = useWalletClient();
+
+  useEffect(() => {
+    if (!wc.data) return;
+
+    const accountSigner = walletClientToSmartAccountSigner(wc.data);
+
+    getSmartAccountClient(accountSigner)
+      .then((safe) => {
+        setSafe(safe);
+      })
+      .catch((e) => console.error("WTF???", e));
+  }, [wc]);
+
+  return <></>;
 }
