@@ -1,10 +1,7 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import {
-	Key,
-	WalletIcon,
-} from "lucide-react";
+import { Key, WalletIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -16,15 +13,17 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useAccount, useSignMessage } from "wagmi";
 import { useAtomValue } from "jotai/react";
+import { Switch } from "@/components/ui/switch";
 
 import type { SignatureRequest } from "../api/signature-requests/entity";
 import { userIdAtom } from "../state/userId";
 import { User } from "../api/users/entity";
-import { Switch } from "@/components/ui/switch";
 import type { Position } from "../api/users/positions/route";
+import { InstallSafe } from "./install-safe";
+import { safeAtom } from "../state/safe";
 
-export default function Collateral() {
-	const { isConnected, address } = useAccount();
+export default function Collateral() {	
+	const { isConnected } = useAccount();
 	const { signMessageAsync } = useSignMessage();
 	const userId = useAtomValue(userIdAtom);
 
@@ -79,40 +78,7 @@ export default function Collateral() {
 	}
 
 	if (!user?.defiAddress) {
-		return (
-			<main className="flex justify-center flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-				<div className="flex flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-					<div className="mx-auto max-w-md text-center">
-						<img src="https://repository-images.githubusercontent.com/337806885/6678abd2-1351-4e63-9a3e-3972927696e5" />
-						<h1 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-							Create smart wallet WTF
-						</h1>
-						<p className="mt-4 text-muted-foreground">
-							Collateralize your assets to get a loan
-						</p>
-						<div className="flex justify-center mt-6">
-							<Button
-								onClick={async () => {
-									// temporary
-									if (!address) return;
-
-									await fetch("/api/users", {
-										method: "PUT",
-										body: JSON.stringify({
-											id: userId,
-											defiAddress: address,
-										}),
-									});
-									refetchUser();
-								}}
-							>
-								Create!
-							</Button>
-						</div>
-					</div>
-				</div>
-			</main>
-		);
+		return <InstallSafe refetchUser={refetchUser} />;
 	}
 
 	return (
@@ -161,52 +127,68 @@ export default function Collateral() {
 						))}
 					</CardContent>
 				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center gap-4">
-						<WalletIcon className="w-8 h-8" />
-						<div className="grid gap-1">
-							<CardTitle>DeFi Positions</CardTitle>
-							<CardDescription>Manage your active positions</CardDescription>
-						</div>
-					</CardHeader>
-					<CardContent className="grid gap-4">
-						<div className="grid gap-2">
-							<div className="flex flex-col gap-4 items-center justify-between">
-								{positions?.map((position) => {
-									return (
-										<div key={position.id} className="flex items-center justify-between gap-2 w-[100%]">
-											<div className="flex items-center gap-4">
-												<img width={50} height={50} src={position.logoURL} />
-												<div className="font-medium">{position.id}</div>
-											</div>
-											<div className="text-right">
-												<div className="font-medium">
-													${position.balance.toFixed(2)}
-												</div>
-											</div>
-											<Switch
-												defaultChecked={position.enabled}
-												onCheckedChange={(enabled) => {
-													fetch("/api/users/positions", {
-														method: "PUT",
-														body: JSON.stringify({
-															userId: userId,
-															positionId: position.id,
-															enabled,
-														}),
-													});
-												}}
-												className="rounded-full bg-muted w-10 h-5 relative"
-											>
-												<div className="bg-background w-4 h-4 rounded-full absolute left-0.5 top-0.5 transition-all duration-200 ease-in-out" />
-											</Switch>
-										</div>
-									);
-								})}
+				<div className="flex flex-col gap-4">
+					<Card>
+						<CardHeader className="flex flex-row items-center gap-4">
+							<img
+								width={100}
+								height={100}
+								src="https://repository-images.githubusercontent.com/337806885/6678abd2-1351-4e63-9a3e-3972927696e5"
+							/>
+							<CardTitle>Smart Wallet</CardTitle>
+						</CardHeader>
+						<CardContent className="grid gap-4">
+							<h1>Address: {user?.defiAddress}</h1>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center gap-4">
+							<WalletIcon className="w-8 h-8" />
+							<div className="grid gap-1">
+								<CardTitle>DeFi Positions</CardTitle>
+								<CardDescription>Manage your active positions</CardDescription>
 							</div>
-						</div>
-					</CardContent>
-				</Card>
+						</CardHeader>
+						<CardContent className="grid gap-4">
+							<div className="grid gap-2">
+								<div className="flex flex-col gap-4 items-center justify-between">
+									{positions?.map((position) => {
+										return (
+											<div className="flex items-center justify-between gap-2 w-[100%]">
+												<div className="flex items-center gap-4">
+													<img width={50} height={50} src={position.logoURL} />
+													<div className="font-medium">{position.id}</div>
+												</div>
+												<div className="text-right">
+													<div className="font-medium">
+														${position.balance.toFixed(2)}
+													</div>
+												</div>
+												<Switch
+													defaultChecked={position.enabled}
+													onCheckedChange={(enabled) => {
+														fetch("/api/users/positions", {
+															method: "PUT",
+															body: JSON.stringify({
+																userId: userId,
+																positionId: position.id,
+																enabled,
+															}),
+														});
+													}}
+													className="rounded-full bg-muted w-10 h-5 relative"
+												>
+													<div className="bg-background w-4 h-4 rounded-full absolute left-0.5 top-0.5 transition-all duration-200 ease-in-out" />
+												</Switch>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</main>
 	);
