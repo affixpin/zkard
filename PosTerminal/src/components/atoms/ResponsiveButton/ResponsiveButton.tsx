@@ -44,11 +44,20 @@ const styles = StyleSheet.create({
     minHeight: 80,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowRadius: 1,
+    shadowOffset: {
+      height: 3,
+      width: 3,
+    },
+    shadowOpacity: 0.2,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 36,
+    // fontWeight: "bold",
   },
 });
 

@@ -55,7 +55,7 @@ function Example() {
     }
 
     const call = await fetch(
-      "https://d777ce2e7ed6.ngrok.app/api/signature-requests",
+      "https://01f7ebaa41b2.ngrok.app/api/signature-requests",
       {
         method: "POST",
         headers: {
@@ -63,7 +63,7 @@ function Example() {
         },
         body: JSON.stringify({
           value: Number(currentValue),
-          userId: 1,
+          userId: "root",
         }),
       }
     );
@@ -120,7 +120,7 @@ function Example() {
                 color: "#aeaeae",
               }}
             >
-              0,00
+              0.00
             </Text>
           )}
         </View>

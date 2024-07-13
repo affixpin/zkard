@@ -42,13 +42,13 @@ export default function Keypad({
         <ResponsiveButton title="9" onPress={() => onPress("9")} />
       </KeypadRow>
       <KeypadRow>
-        <ResponsiveButton title="0" onPress={() => onPress("0")} />
         <ResponsiveButton title="." onPress={() => onPress(".")} />
+        <ResponsiveButton title="0" onPress={() => onPress("0")} />
         <ResponsiveButton title="<" onPress={() => onClear()} />
       </KeypadRow>
       <KeypadRow>
         <ResponsiveButton
-          title="Proceed"
+          title="Proceed >"
           onPress={() => onSubmit()}
           style={{ backgroundColor: "#00eeaa", padding: 0, margin: 0 }}
         />
