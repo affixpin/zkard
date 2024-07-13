@@ -124,7 +124,7 @@ export default function Collateral() {
 					</CardHeader>
 					<CardContent className="grid gap-8">
 						{data?.map((sr) => (
-							<div className="flex items-center gap-4">
+							<div key={sr.id} className="flex items-center gap-4">
 								<Key className="h-6 w-6" />
 								<div className="grid gap-1">
 									<p className="text-sm font-medium leading-none">
@@ -174,7 +174,7 @@ export default function Collateral() {
 							<div className="flex flex-col gap-4 items-center justify-between">
 								{positions?.map((position) => {
 									return (
-										<div className="flex items-center justify-between gap-2 w-[100%]">
+										<div key={position.id} className="flex items-center justify-between gap-2 w-[100%]">
 											<div className="flex items-center gap-4">
 												<img width={50} height={50} src={position.logoURL} />
 												<div className="font-medium">{position.id}</div>
