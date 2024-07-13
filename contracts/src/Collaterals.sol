@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT 
 pragma solidity ^0.8.26;
 // import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import { Proof } from "./ProofTypes.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
+import { Proof } from "./ProofTypes.sol";
 import {Verifier as LimitVerifier} from "./verifiers/can_liquidate.sol";
-import {Verifier as BorrowVerifier} from "./verifiers/add.sol";
+import {Verifier as BorrowVerifier} from "./verifiers/borrow.sol";
 
 contract Collaterals is IVerifier {
     mapping(address user => uint128 collateralValue) public collaterals;

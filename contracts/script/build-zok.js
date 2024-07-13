@@ -9,7 +9,7 @@ const formAddPayload = (prev_state_hash, prev_state, to_add) => {
 };
 
 initialize().then((zokratesProvider) => {
-  const names = ["add", "can_liquidate"];
+  const names = ["borrow", "can_liquidate"];
 
   for (const name of names) {
     const source = fs.readFileSync(`zoks/${name}.zok`, {

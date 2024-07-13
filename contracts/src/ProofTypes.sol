@@ -1,3 +1,5 @@
+pragma solidity ^0.8.26;
+
 struct G1Point {
     uint X;
     uint Y;

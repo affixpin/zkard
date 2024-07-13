@@ -6,8 +6,7 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 pragma solidity ^0.8.0;
 
-import { G1Point, G2Point, Proof } from "../ProofTypes.sol";
-
+import { Proof, G1Point, G2Point } from "../ProofTypes.sol";
 
 library Pairing {
     /// @return the generator of G1
@@ -148,16 +147,16 @@ contract Verifier {
         G1Point[] gamma_abc;
     }
     function verifyingKey() pure internal returns (VerifyingKey memory vk) {
-        vk.alpha = G1Point(uint256(0x1a0d3bc15b943568d8ca98ae1b7f67ee87b7916200b2d21dfdf4cd7542ec3823), uint256(0x1ea0731441d5ca2d6a9151e44c7938ec8265092e3e3815cf93fba641c41dd65f));
-        vk.beta = G2Point([uint256(0x1361a166056771d1644dce85bf0a2db0fe32a83529f25926a2fb349c5fe6e4f0), uint256(0x29cf21ccd901e3f7b1dcc01e3343f7832b096eaaef499b709bcf91940b732b9f)], [uint256(0x1a22054173109dd953b45577babf290a586a9e83b4ea5fcab56d9c998311a83c), uint256(0x20ef944937b87a5939c0ef250648f65e933716db0974f2f2ae702333c94ad1ed)]);
-        vk.gamma = G2Point([uint256(0x2817f870336cd582452604659abd0d03936e43cd6b09012400cd3f0db450ec15), uint256(0x26741d0f833b30dd5d4e1c22d4018973772c71a59f93b42d8a265ce11fb495ef)], [uint256(0x0010ca6ad1b39f6d9fc3a22e486253cc38903303b5ea5a311f2506e7794f90f7), uint256(0x0a005936bb5b471e8a5c73ca38657163724fcc611ce420a75349b709e54fb3e8)]);
-        vk.delta = G2Point([uint256(0x2a074dc592edecd5c30dcc31ceeaf8d7d96ef38943110f7871f7a6b67f748622), uint256(0x146905de32a35850df17a46649f182c797fade1a5495c22b871e6d004e819713)], [uint256(0x10175c49bc528433533c71a3af754d7106192a6a6a33a9f79da2f77996766941), uint256(0x2911d0b037d192624fd32bf97bc9a3c32e8e94a6ece6a6d1586835c16e3d9024)]);
+        vk.alpha = G1Point(uint256(0x2b3ee3ea25d837b9848e679d2ce2dedc5a1b90e77a23ec0ef1b52d45001bd8c5), uint256(0x2566021942e2df87e3eacc07a176e9a9b08a8ec6bc2f53024d90969a35136b69));
+        vk.beta = G2Point([uint256(0x2c5681aed702eea667a1f7ee092807dd1dab0cf1b7c7aab0531f23d26efd477b), uint256(0x0d4a170849698b27a3ecba60f12501ccd6c6584b75ae68a2a48c580a5455094c)], [uint256(0x25921664301126ad2930182143f03c72e8210671f376614e6500bd6197d8d506), uint256(0x28bf7d09feeb5bda1b4899395a04e7fb4d63e2d961c9adf54fe219abff6c9b08)]);
+        vk.gamma = G2Point([uint256(0x0648a35cf13de517fc5b63740a0d4226e762946caf437814f8221a9daef43af3), uint256(0x2444033cfd93f0a94a9c3d31f4f5c45373cc6567ddf8687e35bca15fca449506)], [uint256(0x18fb5ad6fe3cd99c44a64e36d827b85b696123722403375c51f44bcae6ebb2d4), uint256(0x0ff43789462a7760baf4077b879316019cd2f3ee342f049038e08025c3170e16)]);
+        vk.delta = G2Point([uint256(0x146e259a9a5af0fac6db1cbb5f56c2fa19490d44a75c2ffe73930d2b55cdc5c9), uint256(0x22ef7bc5481ccd89bc7a09b8cf00b8b2018b41cb064edd223e60a9ea5bd59ae3)], [uint256(0x2fe89aa1f26bf254a49ea9f5f4d0ffff1ecae9567cdc2daaca792f5f12eedc0b), uint256(0x1ffa55e1f05cc8719a7efd6139f2db8dfa86e3819afd836214b3bb95cee6d1f2)]);
         vk.gamma_abc = new G1Point[](5);
-        vk.gamma_abc[0] = G1Point(uint256(0x072f203fb87bcb6e11233125cb7dcede04ef9d664cc6d070475d8260c5e94610), uint256(0x04f759e58d66f6bcc954d84252ffe3cf18c8b45e278ebe8c8d09988162c4431e));
-        vk.gamma_abc[1] = G1Point(uint256(0x1dc4cc6e704b70c268d50497e9d5d556cb621c22654fcd5e9d369eba6356eacc), uint256(0x14f94a58ccda33e268def074dd58c43b7022e08b50812cda0cf9c6f893a22c32));
-        vk.gamma_abc[2] = G1Point(uint256(0x0c43eda29fba5f8e9c5af78cec79af25d9c6ded2833e261dc68d8b17d09ecb1c), uint256(0x14fb9cb20777c73a6b0c89584e5a232200534a24471d56bb19d93f8c6ce640fe));
-        vk.gamma_abc[3] = G1Point(uint256(0x0ae6db2e10f9b780ae4fe60fd2ff1ec00bcf513048741e28bccb1563bc863f2a), uint256(0x0bb8504315e21ab3c9d730d6ab49f2991f2ce91d6a463526fec8cc6f0b17bf34));
-        vk.gamma_abc[4] = G1Point(uint256(0x154f625737b0ba1d81e5d2828e0c74d22ae7ed41073e4e39f1b206b26829d0f6), uint256(0x2816c3d31da96022adcf862a2e6c98c5105d6a9526acd99cf9346f6ac7d45f98));
+        vk.gamma_abc[0] = G1Point(uint256(0x22876f25db2198b0b6742dddec1f342e96dd17b86de06d4e41602c1a309cfb26), uint256(0x18d397002ac56fca550857bed0a5ea358c3cbe595edabb5a9131896a9b0289fa));
+        vk.gamma_abc[1] = G1Point(uint256(0x2273a0e175b969dc813149f131dc102eb54ee31e480675702fccfc54d95667cb), uint256(0x17a9f494b61c3d49f9818eb5467db91d99b6f2cef5b0ada5add812f07357df71));
+        vk.gamma_abc[2] = G1Point(uint256(0x28a3b9f7defed8ca62d7ab17ee08fcd1da2885809e89ccf579272ea9a7f34656), uint256(0x04efd749d719a6876f478a589359df78c3bbec78846ee428d859bd0996b6ec3f));
+        vk.gamma_abc[3] = G1Point(uint256(0x25992e90d4f1af1329ccd6c07e96efddc8cd8bef75a94879cd1b912d4c700479), uint256(0x140467139e381dd48b11026b66738d2eb683c1f2093c82469be3ac1cd3810356));
+        vk.gamma_abc[4] = G1Point(uint256(0x21037b8d6ab076a364edc2cd45776b0fe270b580caebe883d3840021d58b9939), uint256(0x298a7faafcf1d7c4c3d538926a71087e10a0efb86d81855433a6d898113742f9));
     }
     function verify(uint[] memory input, Proof memory proof) internal view returns (uint) {
         uint256 snark_scalar_field = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
