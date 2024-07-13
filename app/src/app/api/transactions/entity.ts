@@ -1,8 +1,8 @@
 export interface Transaction {
-	id: string;
-	value: string;
-	date: string;
-	description: string;
-	signature: string | null;
-	userId: string;
+  id: string;
+  value: number;
+  date: string;
+  description: string;
+  signature: string | null;
+  userId: string;
 }
