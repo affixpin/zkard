@@ -181,16 +181,24 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         proxyIds[proxyAddress] = proxyId;
     }
 
-    function enableCollateralProxy(uint8 proxyId) external {
+    function enableCollateralProxy(uint8 proxyId) external onlyOwner {
         proxyInfo[proxyId].isEnabled = true;
     }
 
-    function disableCollateralProxy(uint8 proxyId) external {
+    function disableCollateralProxy(uint8 proxyId) external onlyOwner {
         proxyInfo[proxyId].isEnabled = false;
     }
 
     function setVerifier(address _verifier) external onlyOwner {
         verifier = IVerifier(_verifier);
+    }
+
+    function addCollateralProxy(
+        uint8 proxyId,
+        address proxyAddress
+    ) external onlyOwner {
+        proxyInfo[proxyId] = PossitionProxy(proxyAddress, proxyId, true);
+        proxyIds[proxyAddress] = proxyId;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
