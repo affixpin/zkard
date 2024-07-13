@@ -6,7 +6,7 @@ import { createPublicClient, http } from "viem";
 import { localhost, foundry } from "viem/chains";
 
 async function readContractState(args) {
-  const deployedContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const deployedContractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
   const publicClient = createPublicClient({
     chain: foundry,
@@ -73,14 +73,14 @@ async function generateProof() {
   );
   console.log("output", output);
 
-  // run setup
-  const keypair = zokratesProvider.setup(artifacts.program);
+  const pk = fs.readFileSync(`./out/keypairs/add-keypair.pk`);
+
 
   // generate proof
   const proof = zokratesProvider.generateProof(
     artifacts.program,
     witness,
-    keypair.pk
+    pk
   );
 
   console.info("proof generated!");

@@ -25,6 +25,13 @@ initialize().then((zokratesProvider) => {
     fs.writeFileSync(`./src/${name}.sol`, verifier);
 
     console.log(`Verifier for ${name} generated`);
+
+    if (!fs.existsSync('./out/keypairs')) {
+      fs.mkdirSync('./out/keypairs');
+    }
+
+    fs.writeFileSync(`./out/keypairs/${name}-keypair.pk`, Buffer.from(keypair.pk));
+    fs.writeFileSync(`./out/keypairs/${name}-keypair.vk`, JSON.stringify(keypair.vk));
   }
 
   return zokratesProvider;
