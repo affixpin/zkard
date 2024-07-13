@@ -7,6 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "solady/utils/ECDSA.sol";
 import {IPossitionProxy} from "./interfaces/IPossitionProxy.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
+import {Proof} from "./ProofTypes.sol";
 import {IERC7579Account, Execution} from "modulekit/external/ERC7579.sol";
 import {ERC7579ValidatorBase} from "modulekit/Modules.sol";
 
@@ -180,7 +181,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
                                      LIQUIDATE
     //////////////////////////////////////////////////////////////////////////*/
     function liquidate(
-        IVerifier.Proof memory proof,
+        Proof memory proof,
         uint8 collateralId,
         bytes memory data
     ) external {

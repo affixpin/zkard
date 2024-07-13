@@ -22,7 +22,11 @@ initialize().then((zokratesProvider) => {
     const keypair = zokratesProvider.setup(artifacts.program);
 
     const verifier = zokratesProvider.exportSolidityVerifier(keypair.vk);
-    fs.writeFileSync(`./src/${name}.sol`, verifier);
+
+    if (!fs.existsSync('./src/verifiers')) {
+      fs.mkdirSync('./src/verifiers');
+    }
+    fs.writeFileSync(`./src/verifiers/${name}.sol`, verifier);
 
     console.log(`Verifier for ${name} generated`);
 
