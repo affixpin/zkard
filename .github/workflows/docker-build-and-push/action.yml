@@ -48,7 +48,7 @@ runs:
       id: build-and-push
       uses: docker/build-push-action@v4
       with:
-        context: "app"
+        context: "{{defaultContext}}:app"
         file: "app/Dockerfile"
         push: true # Don't push on PR
         tags: ${{ steps.meta.outputs.tags }}
