@@ -5,14 +5,17 @@ import "forge-std/Script.sol";
 import {RegistryDeployer} from "modulekit/deployment/RegistryDeployer.sol";
 
 // Import modules here
-import {ZkardValidator} from "src/ZkardValidator.sol";
+import {ZkardModule} from "src/ZkardModule.sol";
 
 /// @title DeployModuleScript
 contract DeployModuleScript is Script, RegistryDeployer {
     function run() public {
         // Setup module bytecode, deploy params, and data
-        bytes memory bytecode = type(ZkardValidator).creationCode;
-        bytes memory deployParams = "";
+        bytes memory bytecode = type(ZkardModule).creationCode;
+        bytes memory deployParams = abi.encode(
+            0x0D0e2d28e324C4D7cce09fdED31944191E22c48E,
+            address(0)
+        );
         bytes memory data = "";
 
         // Get private key for deployment
