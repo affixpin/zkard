@@ -1,0 +1,16 @@
+import "hashes/sha256/512bitPacked" as sha256packed;
+
+def main(field[2] state_hash, private field[4] state, private field to_add) -> field[2]  {
+    field[2] h = sha256packed(state);
+    assert(h[0] == state_hash[0]);
+    assert(h[1] == state_hash[1]);
+
+    field amount = state[3];
+    field new_amount = amount + to_add;
+
+    field[2] nh = sha256packed([state[0], state[1], state[2], new_amount]);
+    // assert(nh[0] == new_state_hash[0]);
+    // assert(nh[1] == new_state_hash[1]);
+
+    return nh;
+}

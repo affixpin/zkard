@@ -1,0 +1,12 @@
+import "hashes/sha256/512bitPacked" as sha256packed;
+
+def main(private field[4] state, field[2] state_hash, field borrow_limit) {
+    field[2] h = sha256packed(state);
+    assert(h[0] == state_hash[0]);
+    assert(h[1] == state_hash[1]);
+
+    field total_borrow = state[3];
+    
+    assert(total_borrow < borrow_limit);
+    return;
+}

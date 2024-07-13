@@ -3,12 +3,14 @@
   "version": "0.4.1",
   "description": "A Foundry template for building modules using the ModuleKit",
   "license": "GPL-3.0",
+  "type": "module",
   "author": {
     "name": "Rhinestone",
     "url": "https://rhinestone.wtf"
   },
   "scripts": {
     "build": "forge build",
+    "build:zok": "node ./script/build-zok.js",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "build:smt": "FOUNDRY_PROFILE=smt forge build",
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
@@ -25,7 +27,9 @@
     "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   },
   "dependencies": {
-    "@rhinestone/modulekit": "^0.4.7"
+    "@rhinestone/modulekit": "^0.4.7",
+    "viem": "^2.17.3",
+    "zokrates-js": "^1.1.9"
   },
   "files": [
     "src",
