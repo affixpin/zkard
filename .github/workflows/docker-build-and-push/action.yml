@@ -48,8 +48,8 @@ runs:
       id: build-and-push
       uses: docker/build-push-action@v6
       with:
-        context: app
-        file: "Dockerfile"
+        context: ./app
+        file: ./app/Dockerfile
         push: true # Don't push on PR
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
