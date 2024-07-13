@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.23;
 
 import {ERC7579HookDestruct} from "modulekit/Modules.sol";
 import {PackedUserOperation} from "modulekit/external/ERC4337.sol";
@@ -7,6 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "solady/utils/ECDSA.sol";
 import {IPossitionProxy} from "./interfaces/IPossitionProxy.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
+import {Proof} from "./ProofTypes.sol";
 import {IERC7579Account, Execution} from "modulekit/external/ERC7579.sol";
 import {ERC7579ValidatorBase} from "modulekit/Modules.sol";
 
@@ -35,7 +36,8 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     error LiquidationAllowedByBankOnly();
 
     struct Account {
-        bool initialized;
+        bool isHookInstalled;
+        bool isValidatorInstalled;
         uint8[] collateralIds;
     }
 
@@ -51,6 +53,9 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     mapping(uint8 proxyId => PossitionProxy possitionProxy) public proxyInfo;
     mapping(address account => Account accountData) public accounts;
 
+    uint256 public constant VALIDATOR_TYPE = 1;
+    uint256 public constant HOOK_TYPE = 4;
+
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
     //////////////////////////////////////////////////////////////////////////*/
@@ -65,24 +70,34 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     /**
      * Initialize the module with the given data
      */
-    function onInstall(bytes calldata) external override {
+    function onInstall(bytes calldata callData) external override {
+        uint256 moduleType = abi.decode(callData, (uint256));
         if (isInitialized(msg.sender)) revert ModuleIsInitialized();
-
-        accounts[msg.sender].initialized = true;
+        if (moduleType == HOOK_TYPE) {
+            accounts[msg.sender].isHookInstalled = true;
+        } else if (moduleType == VALIDATOR_TYPE) {
+            accounts[msg.sender].isValidatorInstalled = true;
+        }
         emit ModuleInitialized(msg.sender);
     }
 
     /**
      * De-initialize the module with the given data
      */
-    function onUninstall(bytes calldata) external override {
-        // validate the account is initialized
-        if (!isInitialized(msg.sender)) revert ModuleIsNotInitialized();
+    function onUninstall(bytes calldata callData) external override {
+        uint256 moduleType = abi.decode(callData, (uint256));
 
         // verify no supported proxies
         if (accounts[msg.sender].collateralIds.length > 0)
             revert HasCollaterals();
         delete accounts[msg.sender];
+
+        if (moduleType == HOOK_TYPE) {
+            accounts[msg.sender].isHookInstalled = false;
+        } else if (moduleType == VALIDATOR_TYPE) {
+            accounts[msg.sender].isValidatorInstalled = false;
+        }
+
         emit ModuleUninitialized(msg.sender);
     }
 
@@ -93,7 +108,9 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
      * @return true if the module is initialized, false otherwise
      */
     function isInitialized(address smartAccount) public view returns (bool) {
-        return accounts[smartAccount].initialized;
+        return
+            accounts[smartAccount].isHookInstalled &&
+            accounts[smartAccount].isValidatorInstalled;
     }
 
     function isCollateralEnabled(
@@ -119,7 +136,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         address accountAddress = msg.sender;
         Account memory account = accounts[accountAddress];
 
-        if (!account.initialized) revert NotInitialized(accountAddress);
+        if (!isInitialized(accountAddress)) revert ModuleIsNotInitialized();
 
         if (!isCollateralSupported(collateralId)) revert InvalidCollateral();
 
@@ -134,7 +151,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         address accountAddress = msg.sender;
         Account memory account = accounts[accountAddress];
 
-        if (!account.initialized) revert NotInitialized(accountAddress);
+        if (!isInitialized(accountAddress)) revert ModuleIsNotInitialized();
 
         if (!isCollateralEnabled(accountAddress, collateralId))
             revert CollateralNotEnabled();
@@ -180,10 +197,10 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
                                      LIQUIDATE
     //////////////////////////////////////////////////////////////////////////*/
     function liquidate(
-        IVerifier.Proof memory proof,
+        Proof memory proof,
         uint8 collateralId,
         bytes memory data
-    ) external {
+    ) internal {
         // if (isBank) {
         //     (
         //         IVerifier.Proof memory proof,
@@ -214,24 +231,25 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         // }
     }
 
-    function isLiquidate(
-        address target,
-        bytes calldata callData
-    ) public view returns (bool) {
-        if (target != address(this)) return false;
-        if (callData.length >= 4) {
-            if (bytes4(callData[:4]) == ZkardModule.liquidate.selector) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // function isLiquidate(
+    //     address target,
+    //     bytes calldata callData
+    // ) public view returns (bool) {
+    //     if (target != address(this)) return false;
+    //     if (callData.length >= 4) {
+    //         if (bytes4(callData[:4]) == ZkardModule.liquidate.selector) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
 
     function _checkExecutionAllowed(
+        address account,
         address msgSender,
         address target,
         bytes calldata callData
@@ -251,7 +269,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
                 proxyInfo[collateralId].proxyAddress
             );
 
-            if (positionProxy.isValidationNeeded(target, callData)) {
+            if (positionProxy.isValidationNeeded(account, target, callData)) {
                 revert ValidationNeeded();
             }
         }
@@ -264,7 +282,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         uint256 value,
         bytes calldata callData
     ) internal virtual override returns (bytes memory hookData) {
-        _checkExecutionAllowed(msgSender, target, callData);
+        _checkExecutionAllowed(account, msgSender, target, callData);
     }
 
     function onExecuteBatch(
@@ -274,6 +292,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     ) internal virtual override returns (bytes memory hookData) {
         for (uint256 i = 0; i < executions.length; i++) {
             _checkExecutionAllowed(
+                account,
                 msgSender,
                 executions[i].target,
                 executions[i].callData
@@ -288,7 +307,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         uint256 value,
         bytes calldata callData
     ) internal virtual override returns (bytes memory hookData) {
-        _checkExecutionAllowed(msgSender, target, callData);
+        _checkExecutionAllowed(account, msgSender, target, callData);
     }
 
     function onExecuteBatchFromExecutor(
@@ -298,6 +317,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     ) internal virtual override returns (bytes memory hookData) {
         for (uint256 i = 0; i < executions.length; i++) {
             _checkExecutionAllowed(
+                account,
                 msgSender,
                 executions[i].target,
                 executions[i].callData
@@ -367,6 +387,7 @@ contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
         if (sender != ECDSA.recover(hash, signature)) return false;
         return true;
     }
+
     /*//////////////////////////////////////////////////////////////////////////
                                      METADATA
     //////////////////////////////////////////////////////////////////////////*/

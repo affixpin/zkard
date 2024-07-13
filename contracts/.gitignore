@@ -5,7 +5,7 @@ broadcast
 
 # Docs
 docs/
-lib/
+
 
 # Dotenv file
 .env

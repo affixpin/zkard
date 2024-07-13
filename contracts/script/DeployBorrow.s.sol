@@ -4,7 +4,7 @@ pragma solidity ^0.8.23;
 import "forge-std/Script.sol";
 
 // Import modules here
-import {Verifier} from "src/add.sol";
+import {Verifier} from "src/verifiers/borrow.sol";
 
 /// @title DeployModuleScript
 contract DeployModuleScript is Script {
