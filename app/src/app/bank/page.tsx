@@ -20,6 +20,7 @@ export default function Bank() {
 			const json = await response.json();
 			return json as Transaction[];
 		},
+		refetchInterval: 1000,
 	});
 
 	const { data: user } = useQuery({
@@ -29,6 +30,7 @@ export default function Bank() {
 			const json = await response.json();
 			return json as User;
 		},
+		refetchInterval: 1000,
 	});
 
 	return (
@@ -56,7 +58,7 @@ export default function Bank() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">
-									${user?.defiColleteral}
+									${user?.defiCollateral.toFixed(2)}
 								</div>
 							</CardContent>
 						</Card>
@@ -70,7 +72,7 @@ export default function Bank() {
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">${user?.creditLimit}</div>
+								<div className="text-2xl font-bold">${user?.creditLimit.toFixed(2)}</div>
 							</CardContent>
 						</Card>
 						<Card className="w-[100%]">

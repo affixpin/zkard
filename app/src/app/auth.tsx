@@ -25,7 +25,7 @@ export function Auth(props: any) {
       <div className="flex justify-center items-center h-screen">
         <Card className="w-full max-w-md p-6 sm:p-8">
           <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-3xl font-bold">zcard</CardTitle>
+            <CardTitle className="text-3xl font-bold">zkard</CardTitle>
             <CardDescription>
               Demo account, enter any user ID to continue
             </CardDescription>

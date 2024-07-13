@@ -3,11 +3,17 @@ export interface User {
 	balance: number
 	creditLimit: number
 	creditSpent: number
-	defiColleteral: number
+	defiCollateral: number
+	defiCollateralEnabled: number
 	defiAddress?: `0x${string}`
 
 	card: {
 		number: string
 		expiry: string
 	}
+
+	positions: {
+		[id: string]: boolean
+	}
 }
+

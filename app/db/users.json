@@ -9,7 +9,10 @@
       "card": {
         "number": "1111 2222 3333 4444",
         "expiry": "04/20"
-      }
+      },
+      "defiAddress": "0x3eD467197c41F079723bE90d92c62cF667f943Ff",
+      "defiCollateral": 5.626540500827474,
+      "defiCollateralEnabled": 0
     },
     {
       "id": "test",
