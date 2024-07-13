@@ -7,3 +7,6 @@
 [submodule "contracts/lib/v3-periphery"]
 	path = contracts/lib/v3-periphery
 	url = https://github.com/Uniswap/v3-periphery
+[submodule "contracts/lib/solady"]
+	path = contracts/lib/solady
+	url = https://github.com/vectorized/solady
