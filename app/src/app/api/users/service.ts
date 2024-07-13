@@ -1,11 +1,26 @@
-async function defiService1Watcher() {
+import { usersDB } from "./db";
+import { getPositions } from "./positions/route";
+
+async function updateCollateral() {
+	const db = await usersDB();
+	for (const user of db.data.users) {
+		if (!user.defiAddress) continue;
+		const positions = await getPositions(user.id);
+		user.defiCollateral = positions.reduce(
+			(acc, position) => acc + position.balance,
+			0
+		);
+		user.defiCollateralEnabled = positions.reduce(
+			(acc, position) => acc + (position.enabled ? position.balance : 0),
+			0
+		);
+		user.creditLimit = user.defiCollateralEnabled;
+	}
+	await db.write();
 }
 
-async function defiService1Watcher() {
-}
-
-function usersService() {
-
-
-
+export async function usersService() {
+	setInterval(() => {
+		updateCollateral();
+	}, 5000);
 }

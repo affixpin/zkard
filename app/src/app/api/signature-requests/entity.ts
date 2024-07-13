@@ -1,6 +1,6 @@
 export interface SignatureRequest {
 	id: string;
-	value: string;
+	value: number;
 	date: string;
 	description: string;
 	signature: string | null;

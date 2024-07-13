@@ -26,10 +26,10 @@ export function Header() {
             Bank
           </Link>
           <Link
-            href="/colleteral"
+            href="/collateral"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            Colleteral
+            Collateral
           </Link>
         </nav>
       </div>

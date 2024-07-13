@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {ERC7579ValidatorBase} from "modulekit/Modules.sol";
+import {ERC7579HookDestruct} from "modulekit/Modules.sol";
 import {PackedUserOperation} from "modulekit/external/ERC4337.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "solady/utils/ECDSA.sol";
-
+import {IPossitionProxy} from "./interfaces/IPossitionProxy.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
+import {IERC7579Account, Execution} from "modulekit/external/ERC7579.sol";
+import {ERC7579ValidatorBase} from "modulekit/Modules.sol";
 
-contract ZkardValidator is ERC7579ValidatorBase, Ownable {
+contract ZkardModule is ERC7579HookDestruct, Ownable, ERC7579ValidatorBase {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -27,12 +29,18 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
     error HasCollaterals();
     error ModuleIsInitialized();
     error ModuleIsNotInitialized();
+    error ValidationNeeded();
+    error OnlyLiquidation();
+    error LimitNotReached();
+    error LiquidationAllowedByBankOnly();
 
     struct Account {
         bool initialized;
         uint8[] collateralIds;
     }
+
     struct PossitionProxy {
+        address proxyAddress;
         uint8 proxyId;
         bool isEnabled;
     }
@@ -54,6 +62,9 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
         verifier = IVerifier(verifierAddress);
     }
 
+    /**
+     * Initialize the module with the given data
+     */
     function onInstall(bytes calldata) external override {
         if (isInitialized(msg.sender)) revert ModuleIsInitialized();
 
@@ -61,17 +72,26 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
         emit ModuleInitialized(msg.sender);
     }
 
-    function onUninstall(bytes calldata data) external override {
+    /**
+     * De-initialize the module with the given data
+     */
+    function onUninstall(bytes calldata) external override {
         // validate the account is initialized
         if (!isInitialized(msg.sender)) revert ModuleIsNotInitialized();
-
-        // verify the borrowed amount = 0
 
         // verify no supported proxies
         if (accounts[msg.sender].collateralIds.length > 0)
             revert HasCollaterals();
+        delete accounts[msg.sender];
+        emit ModuleUninitialized(msg.sender);
     }
 
+    /**
+     * Check if the module is initialized
+     * @param smartAccount The smart account to check
+     *
+     * @return true if the module is initialized, false otherwise
+     */
     function isInitialized(address smartAccount) public view returns (bool) {
         return accounts[smartAccount].initialized;
     }
@@ -119,9 +139,14 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
         if (!isCollateralEnabled(accountAddress, collateralId))
             revert CollateralNotEnabled();
 
+        // TODO: check if collateral is not needed
+
         for (uint256 i = 0; i < account.collateralIds.length; i++) {
             if (account.collateralIds[i] == collateralId) {
                 delete account.collateralIds[i];
+                accounts[accountAddress].collateralIds[i] = account
+                    .collateralIds[account.collateralIds.length - 1];
+                accounts[accountAddress].collateralIds.pop();
                 break;
             }
         }
@@ -135,7 +160,7 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
     //////////////////////////////////////////////////////////////////////////*/
 
     function addCollateralProxy(uint8 proxyId, address proxyAddress) external {
-        proxyInfo[proxyId] = PossitionProxy(proxyId, true);
+        proxyInfo[proxyId] = PossitionProxy(proxyAddress, proxyId, true);
         proxyIds[proxyAddress] = proxyId;
     }
 
@@ -152,12 +177,133 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     LIQUIDATION
+                                     LIQUIDATE
     //////////////////////////////////////////////////////////////////////////*/
+    function liquidate(
+        IVerifier.Proof memory proof,
+        uint8 collateralId,
+        bytes memory data
+    ) external {
+        // if (isBank) {
+        //     (
+        //         IVerifier.Proof memory proof,
+        //         uint8 collateralId,
+        //         bytes memory data
+        //     ) = abi.decode(callData, (IVerifier.Proof, uint8, bytes));
+        //     collateralInAction = collateralId;
+        //     callData = data;
+        // }
+        // for (uint8 i = 0; i < collateralIds.length; i++) {
+        //     uint8 collateralId = collateralIds[i];
+        //     if (!isCollateralSupported(collateralId)) continue;
+        //     IPossitionProxy positionProxy = IPossitionProxy(
+        //         proxyInfo[collateralId].proxyAddress
+        //     );
+        //     if (isBank) {
+        //         limit += positionProxy.getBorrowLimit(accountAddress);
+        //     }
+        //     if (!isBank && positionProxy.isValidationNeeded(target, callData)) {
+        //         collateralInAction = collateralId;
+        //         break;
+        //     }
+        // }
+        // if (!isBank && collateralInAction != 0) revert ValidationNeeded();
+        // if (isBank) {
+        //     if (collateralInAction == 0) revert OnlyLiquidation();
+        //     if (!verifier.limitReached(proof, limit)) revert LimitNotReached();
+        // }
+    }
+
+    function isLiquidate(
+        address target,
+        bytes calldata callData
+    ) public view returns (bool) {
+        if (target != address(this)) return false;
+        if (callData.length >= 4) {
+            if (bytes4(callData[:4]) == ZkardModule.liquidate.selector) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _checkExecutionAllowed(
+        address msgSender,
+        address target,
+        bytes calldata callData
+    ) internal view {
+        address accountAddress = msg.sender;
+        uint8[] memory collateralIds = accounts[accountAddress].collateralIds;
+
+        if (msgSender == owner()) {
+            return;
+        }
+
+        for (uint8 i = 0; i < collateralIds.length; i++) {
+            uint8 collateralId = collateralIds[i];
+            if (!isCollateralSupported(collateralId)) continue;
+
+            IPossitionProxy positionProxy = IPossitionProxy(
+                proxyInfo[collateralId].proxyAddress
+            );
+
+            if (positionProxy.isValidationNeeded(target, callData)) {
+                revert ValidationNeeded();
+            }
+        }
+    }
+
+    function onExecute(
+        address account,
+        address msgSender,
+        address target,
+        uint256 value,
+        bytes calldata callData
+    ) internal virtual override returns (bytes memory hookData) {
+        _checkExecutionAllowed(msgSender, target, callData);
+    }
+
+    function onExecuteBatch(
+        address account,
+        address msgSender,
+        Execution[] calldata executions
+    ) internal virtual override returns (bytes memory hookData) {
+        for (uint256 i = 0; i < executions.length; i++) {
+            _checkExecutionAllowed(
+                msgSender,
+                executions[i].target,
+                executions[i].callData
+            );
+        }
+    }
+
+    function onExecuteFromExecutor(
+        address account,
+        address msgSender,
+        address target,
+        uint256 value,
+        bytes calldata callData
+    ) internal virtual override returns (bytes memory hookData) {
+        _checkExecutionAllowed(msgSender, target, callData);
+    }
+
+    function onExecuteBatchFromExecutor(
+        address account,
+        address msgSender,
+        Execution[] calldata executions
+    ) internal virtual override returns (bytes memory hookData) {
+        for (uint256 i = 0; i < executions.length; i++) {
+            _checkExecutionAllowed(
+                msgSender,
+                executions[i].target,
+                executions[i].callData
+            );
+        }
+    }
 
     /**
      * Validates PackedUserOperation
@@ -175,9 +321,18 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) external view override returns (ValidationData) {
-        bool isValid = _validateSignature(userOp, userOpHash);
+        // validate is bank
+        bool isValidSignature = _validateSignature(
+            userOpHash,
+            userOp.signature,
+            owner()
+        );
 
-        if (isValid) {
+        bool liquidationCouldBeNeeded = accounts[msg.sender]
+            .collateralIds
+            .length > 0;
+
+        if (isValidSignature && liquidationCouldBeNeeded) {
             return VALIDATION_SUCCESS;
         }
         return VALIDATION_FAILED;
@@ -202,13 +357,14 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                      INTERNAL
     //////////////////////////////////////////////////////////////////////////*/
+
     function _validateSignature(
-        PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes memory signature,
+        address sender
     ) internal view returns (bool) {
         bytes32 hash = ECDSA.toEthSignedMessageHash(userOpHash);
-        if (userOp.sender != ECDSA.recover(hash, userOp.signature))
-            return false;
+        if (sender != ECDSA.recover(hash, signature)) return false;
         return true;
     }
     /*//////////////////////////////////////////////////////////////////////////
@@ -221,7 +377,7 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
      * @return name The name of the module
      */
     function name() external pure returns (string memory) {
-        return "ZkardValidator";
+        return "ZkardModule";
     }
 
     /**
@@ -243,6 +399,6 @@ contract ZkardValidator is ERC7579ValidatorBase, Ownable {
     function isModuleType(
         uint256 typeID
     ) external pure override returns (bool) {
-        return typeID == TYPE_VALIDATOR;
+        return typeID == TYPE_HOOK || typeID == TYPE_VALIDATOR;
     }
 }
