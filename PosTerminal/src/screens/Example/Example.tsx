@@ -46,7 +46,7 @@ function Example() {
       // the resolved tag object will contain `ndefMessage` property
       const tag = await nfcManager.getTag();
 
-      Alert.alert("Tag found", JSON.stringify(tag));
+      // Alert.alert("Tag found", JSON.stringify(tag));
     } catch (ex: unknown) {
       if (ex instanceof Error) return Alert.alert("Error", ex.message);
     } finally {
@@ -54,23 +54,20 @@ function Example() {
       nfcManager.cancelTechnologyRequest();
     }
 
-    const call = await fetch(
-      "https://01f7ebaa41b2.ngrok.app/api/signature-requests",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          value: Number(currentValue),
-          userId: "root",
-        }),
-      }
-    );
+    const call = await fetch("https://zkard.xyz/api/signature-requests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        value: Number(currentValue),
+        userId: "root",
+      }),
+    });
 
     const response = await call.json();
 
-    Alert.alert("Success", JSON.stringify(response));
+    setTimeout(() => Alert.alert("Payment successful"), 3000);
 
     setCurrentValue(""); // Clear the current value after submission
   };
