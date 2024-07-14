@@ -39,7 +39,7 @@ const link = {
 
     const balance = await contract.read.balanceOf([address]);
 
-    const balanceFloat = parseFloat(formatUnits(balance, 6));
+    const balanceFloat = parseFloat(formatUnits(balance, 18));
     return balanceFloat;
   },
   id: "Sepolia LINK",
