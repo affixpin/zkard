@@ -50,7 +50,7 @@ export const getSmartAccountClient = async (
     entryPoint: ENTRYPOINT_ADDRESS_V07,
     signer,
     safeVersion: "1.4.1",
-    saltNonce: 75n,
+    saltNonce: 76n,
     erc7569LaunchpadAddress,
     safe4337ModuleAddress,
   });

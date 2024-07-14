@@ -11,7 +11,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage, useWriteContract } from "wagmi";
 import { useAtomValue } from "jotai/react";
 import { Switch } from "@/components/ui/switch";
 
@@ -20,12 +20,14 @@ import { userIdAtom } from "../state/userId";
 import { User } from "../api/users/entity";
 import type { Position } from "../api/users/positions/route";
 import { InstallSafe } from "./install-safe";
-import { safeAtom } from "../state/safe";
+import { zkModuleAbi } from "./zkard-module-artifact";
 
-export default function Collateral() {	
+export default function Collateral() {
 	const { isConnected } = useAccount();
 	const { signMessageAsync } = useSignMessage();
 	const userId = useAtomValue(userIdAtom);
+
+	const { writeContract } = useWriteContract();
 
 	const { data, refetch } = useQuery({
 		queryKey: ["signature-requests", userId],
@@ -153,9 +155,12 @@ export default function Collateral() {
 						<CardContent className="grid gap-4">
 							<div className="grid gap-2">
 								<div className="flex flex-col gap-4 items-center justify-between">
-									{positions?.map((position) => {
+									{positions?.map((position, i) => {
 										return (
-											<div key={position.id} className="flex items-center justify-between gap-2 w-[100%]">
+											<div
+												key={position.id}
+												className="flex items-center justify-between gap-2 w-[100%]"
+											>
 												<div className="flex items-center gap-4">
 													<img width={50} height={50} src={position.logoURL} />
 													<div className="font-medium">{position.id}</div>
@@ -175,6 +180,13 @@ export default function Collateral() {
 																positionId: position.id,
 																enabled,
 															}),
+														});
+														writeContract({
+															abi: zkModuleAbi,
+															address:
+																"0x6b175474e89094c44da98b954eedeac495271d0f",
+															functionName: "addCollateral",
+															args: [i],
 														});
 													}}
 													className="rounded-full bg-muted w-10 h-5 relative"

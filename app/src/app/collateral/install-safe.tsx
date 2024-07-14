@@ -26,7 +26,7 @@ export const InstallSafe: React.FC<{ refetchUser: () => {} }> = ({
 		void init7579Module();
 	}, [safe]);
 
-	if (!safe) return "No safe";
+	if (!safe) return "Loading...";
 
 	return (
 		<main className="flex justify-center flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
